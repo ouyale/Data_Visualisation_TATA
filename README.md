@@ -1,4 +1,4 @@
-# 🛒 Retail Data Analysis and Visualisation: MySQL + Power BI  
+# 🛒 Retail Data Analysis and Visualisation: MySQL + Tableau  
 
 ## Project Overview  
 This project is focused on **structuring, cleaning, and analyzing** an **online retail dataset** with over **540,000 transactions**. My goal is to **efficiently store and manage the data in MySQL**, clean and process it using Python, and finally **visualize insights in Power BI**.  
