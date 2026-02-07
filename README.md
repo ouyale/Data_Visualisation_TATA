@@ -1,77 +1,173 @@
-# 🛒 Retail Data Analysis and Visualisation: MySQL + Tableau  
+# Retail Data Pipeline & Visualization 🛒 &nbsp; [![View Code](https://img.shields.io/badge/Jupyter-View_Notebook-orange?logo=jupyter)](Project_TATA_JupyterNB.ipynb)
 
-## Project Overview  
-This project is focused on **structuring, cleaning, and analyzing** an **online retail dataset** with over **540,000 transactions**. My goal is to **efficiently store and manage the data in MySQL**, clean and process it using Python, and finally **visualize insights in Power BI**.  
+![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)
+![Power BI](https://img.shields.io/badge/Power_BI-Dashboard-F2C811?logo=powerbi&logoColor=black)
+![Pandas](https://img.shields.io/badge/Pandas-2.x-150458?logo=pandas&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Complete-success)
 
-By the end of this project, I will be able to analyze:  
-- ✅ **Customer purchasing behavior**  
-- ✅ **Best-selling products**  
-- ✅ **Order trends and seasonality**  
-- ✅ **Revenue insights** (calculated in Power BI)  
+> **End-to-end data pipeline: cleaning 540,000+ retail transactions with Python, storing in a relational MySQL database, and visualizing business insights in Power BI.**
+
+<br>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/📦_Transactions-540K+-green?style=for-the-badge" alt="Transactions"/>
+  &nbsp;&nbsp;
+  <img src="https://img.shields.io/badge/👥_Customers-4,373-blue?style=for-the-badge" alt="Customers"/>
+  &nbsp;&nbsp;
+  <img src="https://img.shields.io/badge/🛍️_Products-3,958-orange?style=for-the-badge" alt="Products"/>
+  &nbsp;&nbsp;
+  <img src="https://img.shields.io/badge/📊_Orders-25,900-purple?style=for-the-badge" alt="Orders"/>
+</p>
+
+<br>
+
+## Table of Contents
+
+- [Problem Statement](#problem-statement)
+- [Dataset](#dataset)
+- [Architecture](#architecture)
+- [Methodology](#methodology)
+- [Key Metrics](#key-metrics)
+- [Technologies Used](#technologies-used)
+- [How to Replicate](#how-to-replicate)
+- [Author](#author)
+
+<br>
+
+## Problem Statement
+
+How do you transform a messy Excel file with 540,000+ retail transactions into a clean, queryable database powering business intelligence dashboards? This project builds a **complete ETL pipeline** — from raw data cleaning in Python, through relational database design in MySQL, to interactive dashboards in Power BI — enabling analysis of customer purchasing behavior, product performance, seasonality trends, and revenue insights.
+
+<br>
+
+## Dataset
+
+| Property | Detail |
+|----------|--------|
+| **Source** | `Online Retail.xlsx` (23.7 MB) |
+| **Raw Size** | 540,000+ rows, 8 columns |
+| **Time Period** | Starting December 2010 |
+| **Columns** | InvoiceNo, StockCode, Description, Quantity, InvoiceDate, UnitPrice, CustomerID, Country |
+
+<br>
+
+## Architecture
+
+```
+Online Retail.xlsx  →  Python (Pandas)  →  MySQL  →  Power BI
+     Raw Data           Cleaning           Storage     Visualization
+                     • Deduplication       4 tables    • Revenue KPIs
+                     • Missing values      • Customers • Seasonality
+                     • Validation          • Products  • Top products
+                                           • Orders    • Customer trends
+                                           • OrderDetails
+```
+
+### Database Schema
+| Table | Records | Description |
+|-------|---------|-------------|
+| **Customers** | 4,373 | Unique customers with country |
+| **Products** | 3,958 | Products with descriptions & prices |
+| **Orders** | 25,900 | Order headers with dates |
+| **OrderDetails** | 531,091 | Line items linking orders to products |
+
+<br>
+
+## Methodology
+
+### 1. Database Design (MySQL)
+- Designed a **normalized relational schema** with 4 tables
+- Foreign key relationships: `Customers → Orders → OrderDetails ← Products`
+- Created via `TATA_script.sql`
+
+### 2. Data Cleaning (Python + Pandas)
+- Removed products with missing/invalid descriptions
+- Filtered out zero-priced products
+- **Deduplicated** — removed 516,009 duplicate order detail rows
+- Resolved 132 missing StockCodes with placeholder products
+- Removed 134 invalid OrderDetails with non-existent foreign keys
+
+```python
+# Batch load cleaned data into MySQL
+import mysql.connector
+
+conn = mysql.connector.connect(host='localhost', database='RetailDB', ...)
+cursor = conn.cursor()
+
+cursor.executemany(
+    "INSERT IGNORE INTO OrderDetails (InvoiceNo, StockCode, Quantity, UnitPrice) "
+    "VALUES (%s, %s, %s, %s)", batch_data
+)
+```
+
+### 3. Debugging & Problem Solving
+- **Foreign key errors** — StockCodes in OrderDetails not existing in Products
+- **Duplicate records** — needed removal before batch loading
+- **Lost connections** — MySQL dropping during large inserts
+- **Revenue calculation** — moved from MySQL to Power BI for flexibility
+
+### 4. Visualization (Power BI)
+- Connected Power BI directly to MySQL database
+- Revenue calculated dynamically as `Quantity × UnitPrice`
+- Interactive dashboards for customer behavior, product analysis, and trends
+
+<br>
+
+## Key Metrics
+
+| Metric | Value |
+|--------|-------|
+| **Raw Transactions** | 540,000+ |
+| **Unique Customers** | 4,373 |
+| **Unique Products** | 3,958 |
+| **Unique Orders** | 25,900 |
+| **Order Details** | 531,091 |
+| **Duplicates Removed** | 516,009 |
+
+<br>
+
+## Technologies Used
+
+| Tool | Purpose |
+|------|---------|
+| Python 3.x | Data cleaning & ETL scripting |
+| Pandas | Data manipulation & transformation |
+| MySQL 8.0 | Relational database storage |
+| mysql-connector-python | Python-MySQL connectivity |
+| openpyxl | Excel file reading |
+| Power BI | Business intelligence dashboards |
+| Jupyter Notebook | Interactive development |
+
+<br>
+
+## How to Replicate
+
+```bash
+# Clone the repository
+git clone https://github.com/ouyale/Data_Visualisation_TATA.git
+cd Data_Visualisation_TATA
+
+# 1. Set up MySQL database
+mysql -u root -p < TATA_script.sql
+
+# 2. Install Python dependencies
+pip install pandas mysql-connector-python openpyxl jupyter
+
+# 3. Run the data cleaning & loading notebook
+jupyter notebook Project_TATA_JupyterNB.ipynb
+
+# 4. Connect Power BI to MySQL and build dashboards
+```
+
+<br>
+
+## Author
+
+**Barbara Obayi** — Machine Learning Engineer
+
+[![GitHub](https://img.shields.io/badge/GitHub-ouyale-181717?logo=github)](https://github.com/ouyale)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Barbara_Obayi-0A66C2?logo=linkedin)](https://www.linkedin.com/in/barbara-weroba-obayi31/)
+[![Portfolio](https://img.shields.io/badge/Portfolio-ouyale.github.io-4fc3f7)](https://ouyale.github.io)
 
 ---
-
-## **📂 Repository Structure**  
-This repository contains:  
-📌 **SQL File (`TATA_script.sql`)** – Creates the database schema and tables in MySQL  
-📌 **Jupyter Notebook (`Project_TATA_JupyterNB.ipynb`)** – Cleans the dataset and loads it into MySQL  
-📌 **Dataset (`Online Retail.xlsx`)** – The raw retail data used for analysis  
-
----
-
-## **⚙️ Step 1: Setting Up the Database in MySQL**  
-Before loading any data, I **designed a relational database** with the following tables:  
-
-- **Customers** → Stores unique customer IDs and their country  
-- **Orders** → Stores order details (InvoiceNo, InvoiceDate, CustomerID)  
-- **Products** → Stores product details (StockCode, Description, UnitPrice)  
-- **OrderDetails** → Links Orders and Products (Quantity, UnitPrice)  
-
-I manually created these tables in MySQL using the script in `TATA_script.sql`.  
-
----
-
-## **🐍 Step 2: Connecting & Loading Data with Python**  
-Instead of manually inserting **540,000+ rows**, I used **Python in Jupyter Notebooks** to:  
-- ✅ **Connect to MySQL** using `mysql-connector-python`  
-- ✅ **Pre-process the data** (handling missing values, duplicates, etc.)  
-- ✅ **Batch-load the cleaned data** into MySQL  
-
-The full **Jupyter Notebook (`Project_TATA_JupyterNB.ipynb`)** walks through the data-cleaning process and data insertion.
-
----
-
-## **🔍 Step 3: Debugging & Fixing Common Issues**  
-This part took the most time! I ran into:  
-❌ **Foreign key errors** – Some `StockCode`s in `OrderDetails` didn’t exist in `Products`  
-❌ **Duplicate records** – Needed to be removed before loading  
-❌ **Lost connections** – MySQL kept dropping during large inserts  
-❌ **Revenue column issues** – Initially planned to store `Revenue = Quantity * UnitPrice` in MySQL, but it caused persistent errors  
-
-💡 **Solution?** I decided to **skip storing revenue in MySQL** and instead **calculate it dynamically in Power BI**, where I have more flexibility.  
-
----
-
-## **📊 Step 4: Moving to Power BI**  
-Now that the data is fully structured in MySQL, the next steps are:  
-- ✅ **Building interactive dashboards**  
-- ✅ **Exploring customer trends & revenue insights**  
-- ✅ **Creating KPIs for business decision-making**  
-
----
-
-## **📥 How to Replicate This Project**  
-### **1️⃣ Set Up MySQL Database**  
-1. Install MySQL and create a new database:  
-   ```sql
-   CREATE DATABASE RetailDB;
-   ```
-2. Run the SQL script (`TATA_script.sql`) to create tables.
-3. Load Data Using Jupyter Notebook
-   Open (`Retail_Data_Loading.ipynb`) in Jupyter Notebook
-   Update the MySQL connection credentials in the script
-   Run the notebook to clean and insert the data
- 3. Move to Power BI for Visualization
-    Connect Power BI to MySQL
-    Import the cleaned tables
-    Create calculated columns and interactive visuals
